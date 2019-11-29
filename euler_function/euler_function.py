@@ -11,7 +11,7 @@ if __name__ == '__main__':
     n = int(input())
     # Find canonical form of n where n = p1**a1 * p2**a2 ...
     canonical = {}
-    for i in range(2, n+1):
+    for i in range(2, int(n**.5)+1):
         if n % i == 0:
             canonical[i] = 0
             while n % i == 0:
