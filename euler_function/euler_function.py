@@ -9,19 +9,22 @@ If a and b are mutually prime then phi(a*b)  = phi(a)*phi(b)
 
 if __name__ == '__main__':
     n = int(input())
-    result = n
-    primes = [0 for i in range(2, n)]
-    for i in range(2, int(n**0.5)):
+    # Find canonical form of n where n = p1**a1 * p2**a2 ...
+    canonical = {}
+    for i in range(2, n+1):
         if n % i == 0:
-            j = i*i
-            primes[j] = 1
-            while j < n:
+            canonical[i] = 0
+            while n % i == 0:
                 n /= i
-            result -= result / i
-    if n > 1:
-        result -= result / n
-    print('Number primes', sum(primes))
-        
-        
-        
-    
+                canonical[i] += 1
+            if n == 1:
+                break
+    phi_n = 1
+    # Calculate Euler function
+    for k,v in canonical.items():
+        phi_n *= (k**v-k**(v-1))
+    print("Canonical form:", canonical)
+    print("Euler function:", phi_n)
+
+
+
