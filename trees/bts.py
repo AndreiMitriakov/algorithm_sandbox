@@ -83,7 +83,6 @@ class Tree:
         if node.left != None:
             self.min_right(node.left)
         else: 
-            print("to delete", node.key)
             return node
 
     def delete(self, k):
