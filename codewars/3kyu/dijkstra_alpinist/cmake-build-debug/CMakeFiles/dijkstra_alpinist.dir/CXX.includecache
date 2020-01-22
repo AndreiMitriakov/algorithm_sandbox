@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/home/r1d1/dev/algorithm_sandbox/codewars/3kyu/dijkstra_alpinist/main.cpp
+queue
+-
+vector
+-
+iostream
+-
+limits
+-
+unordered_map
+-
+sstream
+-
+
