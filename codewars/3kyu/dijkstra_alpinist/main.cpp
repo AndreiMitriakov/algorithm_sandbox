@@ -1,4 +1,3 @@
-#include <queue>
 #include <vector>
 #include <iostream>
 #include <limits>
@@ -203,21 +202,24 @@ void print(vector<vector<int>> v)
 {
     for (auto d: v) {
         for (auto c: d) {
-            cout << c;
+            cout << c << " ";
         }
         cout << endl;
     }
+    cout << endl;
 }
 
 int main() {
 
-    string maze = "023\n595\n220";
+    string maze = "011\n155\n121";
     vector<vector<int>> maze_;
 
+    
     maze_ = get_maze(maze);
+    print(maze_);
     Graph graph(maze_);
     array<int, 2> start = {0, 0};
-    array<int, 2> end = {maze_.size()-1, maze_.size()-1};
+    array<int, 2> end = {(int)(maze_.size()-1), (int)(maze_.size()-1)};
     int path_cost = find_dijkstra_path(start, end, graph);
     cout << "Path cost " << path_cost << endl;
 
