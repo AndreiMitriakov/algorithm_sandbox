@@ -11,30 +11,44 @@
  * Поток смещается с CPU, если пока он занимал CPU функция
  * timer_tick была вызвана timeslice раз.
  **/
-static  int size = 100;
-static int *queue;
-static int quant;
-static int tp;
+
+struct Threads{
+    int *queue;
+    int *blocked;
+    int current;
+    int size_queue = 100;
+    int size_blocked = 100;
+    int end_queue;
+    int end_blocked;
+    int timestamp;
+    int quant;
+} threads;
+
 
 void scheduler_setup(int timeslice)
 {
-    queue = malloc(size * sizeof(int));
-    quant = timeslice;    
-    tp = 0;
+    threads.queue = malloc(threads.size_queue * sizeof(int));
+    threads.blocked = malloc(threads.size_blocked * sizeof(int));
+    threads.quant = timeslice;    
+    threads.current = -1;
+    threads.size_queue = 0;
+    threads.size_blocked = 0;
+    threads.end_queue = 0;
+    threads.end_blocked = 0;
 }
-
-
 
 /**
  * Функция вызывается, когда создается новый поток управления.
  * thread_id - идентификатор этого потока и гарантируется, что
  * никакие два потока не могут иметь одинаковый идентификатор.
  **/
+ 
 void new_thread(int thread_id)
 {
-    tp++;
-    *(queue+it) = thread_id;
-    /* Put your code here */
+    if (threads.size_queue == 0)
+	threads.current = thread_id;
+    else
+        put(threads.queue, thread_id);
 }
 
 /**
@@ -46,7 +60,8 @@ void new_thread(int thread_id)
  **/
 void exit_thread()
 {
-    /* Put your code here */
+    int cur = getcut(threads.queue, 0);
+    threads.current = cur;
 }
 
 /**
@@ -58,7 +73,8 @@ void exit_thread()
  **/
 void block_thread()
 {
-    /* Put your code here */
+    put(threads.blocked, threads.current);
+    threads.current = getcut(threads.queue, 0);
 }
 
 /**
@@ -67,8 +83,14 @@ void block_thread()
  * ранее заблокированного потока.
  **/
 void wake_thread(int thread_id)
-{
-    /* Put your code here */
+{   
+    int i;
+    int id;
+    for(i=0; i<threads.end_blocked+1; i++)
+        if (*(threads.blocked+i) == thread_id)
+            break;
+    id = getcut(threads.blocked, i);
+    put(threads.blocked, id);
 }
 
 /**
@@ -77,7 +99,9 @@ void wake_thread(int thread_id)
  **/
 void timer_tick()
 {
-    /* Put your code here */
+    threads.timestamp++;
+    if (threads.timestamp % threads.quant == 0)
+        change_threads();
 }
 
 /**
@@ -89,7 +113,30 @@ void timer_tick()
  **/
 int current_thread()
 {
-    /* Put your code here */
+    return threads.current;
+}
+
+void change_threads() {
+    int next = threads.getcut(threads.queue, 0);
+    put(threads.queue, threads.current);
+    threads.current = next;
+}
+
+void put(int *a, int *size, int *max_size, int id) {
+    *size++;
+    if (*size == *max_size) {
+        *max_size *= 2;
+	*a = realloc(*a, *max_size * sizeof(int));
+    }
+    *(*a+size) = id;
+}
+
+int getcut(int *a, int *size, int *max_size, int position) {
+    int toret = *(a+position);
+    for (int i=position; i<*size-1; i++)
+        *(*a+i) = *(*a+i+1);
+    *size--;
+    return  toret;
 }
 
 int main() {
