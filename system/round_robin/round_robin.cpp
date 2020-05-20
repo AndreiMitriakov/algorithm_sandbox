@@ -1,5 +1,24 @@
-#include <stdio.h>
-#include <stdlib.h>
+#include <iostream>
+#include <string>
+#include <queue>
+
+using namespace std;
+
+queue<int> q;
+int quant;
+int cur;
+int time_;
+
+void change_to_next() {
+    time_ = 0;
+    if (q.size() == 0)
+        cur = -1;
+    else {
+	cur = q.front();
+	q.pop();
+    }
+}
+
 /**
  * Функция будет вызвана перед каждым тестом, если вы
  * используете глобальные и/или статические переменные
@@ -12,29 +31,13 @@
  * timer_tick была вызвана timeslice раз.
  **/
 
-struct Threads{
-    int *queue;
-    int *blocked;
-    int current;
-    int size_queue = 100;
-    int size_blocked = 100;
-    int end_queue;
-    int end_blocked;
-    int timestamp;
-    int quant;
-} threads;
-
-
 void scheduler_setup(int timeslice)
 {
-    threads.queue = malloc(threads.size_queue * sizeof(int));
-    threads.blocked = malloc(threads.size_blocked * sizeof(int));
-    threads.quant = timeslice;    
-    threads.current = -1;
-    threads.size_queue = 0;
-    threads.size_blocked = 0;
-    threads.end_queue = 0;
-    threads.end_blocked = 0;
+   queue<int> empty1;
+   swap(empty1, q);
+   quant = timeslice;
+   cur = -1;
+   time_ = 0;
 }
 
 /**
@@ -42,13 +45,13 @@ void scheduler_setup(int timeslice)
  * thread_id - идентификатор этого потока и гарантируется, что
  * никакие два потока не могут иметь одинаковый идентификатор.
  **/
- 
 void new_thread(int thread_id)
 {
-    if (threads.size_queue == 0)
-	threads.current = thread_id;
+    if (cur == -1) {
+        cur = thread_id;
+    }
     else
-        put(threads.queue, thread_id);
+        q.push(thread_id);
 }
 
 /**
@@ -60,8 +63,7 @@ void new_thread(int thread_id)
  **/
 void exit_thread()
 {
-    int cur = getcut(threads.queue, 0);
-    threads.current = cur;
+    change_to_next();
 }
 
 /**
@@ -73,8 +75,8 @@ void exit_thread()
  **/
 void block_thread()
 {
-    put(threads.blocked, threads.current);
-    threads.current = getcut(threads.queue, 0);
+
+    change_to_next();
 }
 
 /**
@@ -83,14 +85,11 @@ void block_thread()
  * ранее заблокированного потока.
  **/
 void wake_thread(int thread_id)
-{   
-    int i;
-    int id;
-    for(i=0; i<threads.end_blocked+1; i++)
-        if (*(threads.blocked+i) == thread_id)
-            break;
-    id = getcut(threads.blocked, i);
-    put(threads.blocked, id);
+{
+    if (cur == -1)
+	cur = thread_id;
+    else
+      q.push(thread_id);
 }
 
 /**
@@ -99,9 +98,13 @@ void wake_thread(int thread_id)
  **/
 void timer_tick()
 {
-    threads.timestamp++;
-    if (threads.timestamp % threads.quant == 0)
-        change_threads();
+    time_++;
+    if (cur == -1)
+        return;
+    if (time_ % quant == 0) {
+        q.push(cur);
+        change_to_next();
+    }
 }
 
 /**
@@ -113,36 +116,59 @@ void timer_tick()
  **/
 int current_thread()
 {
-    return threads.current;
+    return cur;
 }
 
-void change_threads() {
-    int next = threads.getcut(threads.queue, 0);
-    put(threads.queue, threads.current);
-    threads.current = next;
-}
 
-void put(int *a, int *size, int *max_size, int id) {
-    *size++;
-    if (*size == *max_size) {
-        *max_size *= 2;
-	*a = realloc(*a, *max_size * sizeof(int));
+
+void printq(){
+    queue<int> q_;
+    int temp;
+    while(q.size()>0){
+        temp = q.front();
+        cout << temp << " " ;    
+        q.pop();
+        q_.push(temp);
     }
-    *(*a+size) = id;
+    cout << endl;
+    q = q_;
 }
 
-int getcut(int *a, int *size, int *max_size, int position) {
-    int toret = *(a+position);
-    for (int i=position; i<*size-1; i++)
-        *(*a+i) = *(*a+i+1);
-    *size--;
-    return  toret;
+int main()
+{ 
+    scheduler_setup(1);
+    new_thread(0);
+    new_thread(1);
+    new_thread(2);
+    new_thread(3);
+    new_thread(4);
+    new_thread(5);
+    printq();
+    timer_tick();
+    printq();
+    timer_tick();
+    printq();
+    timer_tick();
+    printq();
+    timer_tick();
+    printq();
+    timer_tick();
+    cout << current_thread() << endl;
+    block_thread();
+    cout << current_thread() << endl;
+    block_thread();
+    printq();
+    timer_tick();
+    wake_thread(0);
+    printq();
+    exit_thread();
+    exit_thread();
+    exit_thread();
+    exit_thread();
+    exit_thread();
+    printq();
+    cout << current_thread() << endl;
 }
+/*
 
-int main() {
-    
-    return 0;
-}
-
-
-
+*/
