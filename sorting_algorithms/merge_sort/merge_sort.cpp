@@ -4,7 +4,7 @@
 using namespace std::chrono; 
 using namespace std;
 
-void merge(vector<int>& arr, int l, int m, int r) 
+void merge(vector<int>& arr, int l, int m, int r, int& inv) 
 { 
     int i, j, k; 
     int n1 = m - l + 1; 
@@ -59,7 +59,7 @@ void merge(vector<int>& arr, int l, int m, int r)
   
 /* l is for left index and r is right index of the 
    sub-array of arr to be sorted */
-void mergeSort(vector<int>& arr, int l, int r) 
+void mergeSort(vector<int>& arr, int l, int r, int& inv) 
 { 
     if (l < r) 
     { 
@@ -68,21 +68,18 @@ void mergeSort(vector<int>& arr, int l, int r)
         int m = l+(r-l)/2; 
   
         // Sort first and second halves 
-        mergeSort(arr, l, m); 
-        mergeSort(arr, m+1, r); 
+        mergeSort(arr, l, m, inv); 
+        mergeSort(arr, m+1, r, inv); 
   
-        merge(arr, l, m, r); 
+        merge(arr, l, m, r, inv); 
     } 
 } 
 
 int main() {
     auto start = high_resolution_clock::now();
-    vector<int> v = {1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7};
-    mergeSort(v, 0, v.size()-1);
+    vector<int> v = {2, 3, 9, 2, 9};
+    int inv=0;
+    mergeSort(v, 0, v.size()-1, inv);
     auto stop = high_resolution_clock::now();
     for (auto el: v)
         cout << el << " ";
