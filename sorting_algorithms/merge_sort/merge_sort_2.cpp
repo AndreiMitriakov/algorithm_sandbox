@@ -4,61 +4,67 @@
 using namespace std::chrono; 
 using namespace std;
 
-void merge(vector<int>& arr, int l, int m, int r) 
+void merge(vector<int>& arr, int l, int m, int r, int& counter) 
 { 
-	vector<int> L;
-	int lp = l;
-	int rp = m+1;
-	while (true) {
-		if ((lp!=m+1)&&(rp!=r+1)){
-			if (arr.at(lp)<arr.at(rp)) {
-				L.push_back(arr.at(lp));
-				lp++;
-			}
-			else {
-				L.push_back(arr.at(rp));
-				rp++;
-			}
-		}
-		if ((lp==m+1)&&(rp<r+1)){
-			L.push_back(arr.at(rp));
-			rp++;
-		}
-		if ((lp<m+1)&&(rp==r+1)){
-			L.push_back(arr.at(lp));
-			lp++;
-		}
-		if ((lp==m+1)&&(rp==r+1))
-			break;
-	}
-    if ((l != 0)||(r != arr.size()-1))
-		for (int i=l; i<r+1; i++)
-			arr.at(i) = L.at(i-l);
+	int L[m-l+1];
+	int R[r-m];
+	for (int i=0; i<m-l+1; i++)
+	    L[i] = arr.at(l+i);
+	for (int i=0; i<r-m; i++)
+	    R[i] = arr.at(m+1+i);
+    int ll = 0;
+    int rr = 0;
+    for (int i=0; i<-l+r+1; i++){
+        if (ll == m-l+1) {
+            arr.at(l+i) = R[rr];
+            rr++;         
+        }   
+        else if (rr == r-m) {
+            arr.at(l+i) = L[ll];
+            ll++;         
+            counter += m-l +1 - ll;
+        }   
+        else {
+            if (L[ll]>R[rr]) {
+                arr.at(l+i) = R[rr];
+                rr++;
+                counter += m-l + 1 - ll;
+            }
+            else {
+                arr.at(l+i) = L[ll];
+                ll++;   
+            }
+        }
+    }
 } 
+
   
-void mergeSort(vector<int>& arr, int l, int r) 
+void mergeSort(vector<int>& arr, int l, int r, int& counter) 
 { 
 	if (l < r) {
-	int m = l+(r-l)/2;
-		mergeSort(arr, l, m);
-		mergeSort(arr, m+1, r);
-		merge(arr, l, m, r);
+    	int m = l+(r-l)/2;
+		mergeSort(arr, l, m, counter);
+		mergeSort(arr, m+1, r, counter);
+		merge(arr, l, m, r, counter);
 	}
 } 
 
 int main() {
 	auto start = high_resolution_clock::now();
-    vector<int> v = {1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,
-1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7,1,2,54,8,3,4,-1,5,0,7};
-    mergeSort(v, 0, v.size()-1);
+    // vector<int> v = {1,2,3,4,5,6,7,8,3,4,3}; // 11 digeits, ans.15
+    vector<int> v;// = {2,3,9,2,9};
+    int k, m;
+    cin >> k;
+    for (int i=0; i<k;i++) {
+        cin >> m;
+        v.push_back(m);
+    }
+    //cout << endl;
+    int counter = 0;
+    mergeSort(v, 0, v.size()-1, counter);
 	auto stop = high_resolution_clock::now();
-    for (auto el: v)
-        cout << el << " ";
-    cout << endl;
 	auto duration = duration_cast<microseconds>(stop - start); 
-	cout << duration.count() << endl; 
+	// cout << duration.count() << endl; 
+	cout << counter << endl; 
     return 0;
 }
